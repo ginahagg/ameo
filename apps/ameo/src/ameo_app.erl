@@ -38,7 +38,7 @@ setup_webserver() ->
   HttpPort = env(http_port, 8080),
   HttpAcceptors = env(http_acceptors, 100),
   HttpMaxConnections = env(http_max_connections, infinity),
-
+  io:format("Starting Web Server at ~p", [HttpPort]),
   ?LOG_INFO("Starting Web Server at ~p", [HttpPort]),
 
   {ok, _} = cowboy:start_clear(ameo_http_listener,

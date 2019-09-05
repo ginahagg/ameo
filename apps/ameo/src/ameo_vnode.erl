@@ -46,7 +46,7 @@ handle_command(ping, _Sender, State) ->
 
 handle_command({cmd, Command, Args, Pid}, _Sender, State) ->
     Result = run_cmd(Command, Args, Pid, State),
-    lager:info("~p ~p -> ~p", [Command, Args, Result]),
+    logger:info("~p ~p -> ~p", [Command, Args, Result]),
     {reply, Result, State};
 
 handle_command(Message, _Sender, State) ->
@@ -90,13 +90,13 @@ handle_exit(_Pid, _Reason, State) ->
     {noreply, State}.
 
 handle_info({'DOWN', _Ref, process, Pid, Reason}, State) ->
-    lager:info("Pid down, unsubscribing ~p ~p", [Pid, Reason]),
+    logger:info("Pid down, unsubscribing ~p ~p", [Pid, Reason]),
     unsubscribe_pid(Pid, State),
     {ok, State};
 handle_info({gen_event_EXIT, {ameo_channel, _Pid}, _Reason}, State) ->
     {ok, State};
 handle_info(Info, State) ->
-    lager:info("Got vnode info ~p", [Info]),
+    logger:info("Got vnode info ~p", [Info]),
     {ok, State}.
 
 terminate(_Reason, _State) ->
@@ -126,7 +126,7 @@ run_cmd(<<"DEL">>, [Key], _Pid,
     end;
 run_cmd(<<"SUBSCRIBE">>, [Topic], Pid, State) ->
 	Channel = get_or_create_channel(Topic, State),
-    lager:info("Subscribe ~p ~p", [Topic, Pid]),
+    logger:info("Subscribe ~p ~p", [Topic, Pid]),
     erlang:monitor(process, Pid),
     ameo_channel:subscribe(Channel, Pid),
     no_reply;
@@ -146,7 +146,7 @@ run_cmd(<<"PUBLISH">>, [Topic, Value], _Pid,
                               ameo_channel:send(Channel, {pubsub_msg, Value}),
                               ameo_channel:subscriber_count(Channel)
                       end,
-    lager:info("Publish to topic ~p with ~p subscribers", [Topic, SubscriberCount]),
+    logger:info("Publish to topic ~p with ~p subscribers", [Topic, SubscriberCount]),
     {ok, Partition, SubscriberCount};
 run_cmd(Cmd, Args, _Pid, #state{partition=Partition}) ->
     {error, Partition, {unknown_command, "Unknown command", {Cmd, Args}}}.
@@ -154,7 +154,7 @@ run_cmd(Cmd, Args, _Pid, #state{partition=Partition}) ->
 unsubscribe_pid(Pid, #state{topic_table=TableId}) ->
     % FIXME: ineficient yet easy solution
     ets:foldl(fun ({Topic, Channel}, AccIn) ->
-                      lager:info("FIXME: Blindly unsubscribing ~p from ~p just in case", [Pid, Topic]),
+                      logger:info("FIXME: Blindly unsubscribing ~p from ~p just in case", [Pid, Topic]),
                       ameo_channel:unsubscribe(Channel, Pid),
                       AccIn
               end,
@@ -172,7 +172,7 @@ get_or_create_channel(Topic, State=#state{topic_table=TableId}) ->
         nil ->
             {ok, Channel} = ameo_channel:start_link(),
             ets:insert(TableId, {Topic, Channel}),
-            lager:info("New channel for topic ~p ~p", [Topic, Channel]),
+            logger:info("New channel for topic ~p ~p", [Topic, Channel]),
             Channel;
         Channel ->
             Channel

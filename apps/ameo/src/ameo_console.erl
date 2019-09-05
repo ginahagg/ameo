@@ -72,7 +72,7 @@ down([Node]) ->
         end
     catch
         Exception:Reason ->
-            lager:error("Down failed ~p:~p", [Exception, Reason]),
+            logger:error("Down failed ~p:~p", [Exception, Reason]),
             io:format("Down failed, see log for details~n"),
             error
     end.
@@ -91,7 +91,7 @@ ringready([]) ->
         end
     catch
         Exception:Reason ->
-            lager:error("Ringready failed ~p:~p", [Exception,
+            logger:error("Ringready failed ~p:~p", [Exception,
                     Reason]),
             io:format("Ringready failed, see log for details~n"),
             error
