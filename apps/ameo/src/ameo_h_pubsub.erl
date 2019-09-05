@@ -1,6 +1,6 @@
 -module(ameo_h_pubsub).
 -export([init/2, websocket_init/1, websocket_handle/2, websocket_info/2]).
-
+-include_lib("kernel/include/logger.hrl").
 init(ReqIn, State) ->
   IdleTimeout = maps:get(idle_timeout, State, 60000),
   Opts = #{idle_timeout => IdleTimeout},
@@ -25,7 +25,7 @@ websocket_handle({text, Text}, State) ->
         #{<<"t">> := <<"ping">>, <<"sn">> := Sn} ->
             {reply, {text, jsx:encode(#{t => <<"pong">>, sn => Sn})}, State};
         Cmd ->
-            lager:warning("Unknown command in pubsub: ~p", [Cmd]),
+            ?LOG_WARNING("Unknown command in pubsub: ~p", [Cmd]),
             {stop, State}
     end;
 
@@ -33,7 +33,7 @@ websocket_handle({ping, 'PING'}, State) ->
     {ok, State};
 
 websocket_handle(Frame, State) ->
-    lager:warning("Unknown frame in pubsub: ~p", [Frame]),
+    ?LOG_WARNING("Unknown frame in pubsub: ~p", [Frame]),
     {stop, State}.
 
 websocket_info({'EXIT', _Pid, _Reason}, State) ->

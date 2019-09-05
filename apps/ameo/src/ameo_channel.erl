@@ -1,5 +1,6 @@
 -module(ameo_channel).
 -behaviour(gen_event).
+-include_lib("kernel/include/logger.hrl").
 
 -export([start_link/0, subscribe/2, unsubscribe/2, send/2, subscriber_count/1,
          stop/1]).
@@ -37,17 +38,17 @@ handle_event(Msg, State=#state{pid=Pid}) ->
     {ok, State}.
 
 handle_call(Reason, State) ->
-    lager:warning("ameo_channel: Unknown handle_call: ~p", [Reason]),
+    ?LOG_WARNING("ameo_channel: Unknown handle_call: ~p", [Reason]),
     {ok, ok, State}.
 
 handle_info(Reason, State) ->
-    lager:warning("ameo_channel: Unknown handle_info: ~p", [Reason]),
+    ?LOG_WARNING("ameo_channel: Unknown handle_info: ~p", [Reason]),
     {ok, State}.
 
 code_change(_OldVsn, State, _Extra) -> {ok, State}.
 
 terminate(Reason, #state{pid=Pid}) ->
     Pid ! {ameo_channel, {terminate, #{reason => Reason}}},
-    lager:debug("terminating channel ~p", [Reason]),
+    ?LOG_WARNING("terminating channel ~p", [Reason]),
     ok.
 

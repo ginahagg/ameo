@@ -19,7 +19,7 @@
          handle_exit/3]).
 
 -export([handle_info/2]).
-
+-include_lib("kernel/include/logger.hrl").
 -ignore_xref([
              start_vnode/1
              ]).
@@ -50,7 +50,7 @@ handle_command({cmd, Command, Args, Pid}, _Sender, State) ->
     {reply, Result, State};
 
 handle_command(Message, _Sender, State) ->
-    lager:warning("unhandled_command ~p", [Message]),
+    ?LOG_WARNING("unhandled_command ~p", [Message]),
     {noreply, State}.
 
 handle_handoff_command(_Message, _Sender, State) ->

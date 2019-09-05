@@ -7,6 +7,7 @@
               leave/1,
               remove/1,
               ringready/1]).
+-include_lib("kernel/include/logger.hrl").
 
 staged_join([NodeStr]) ->
     Node = list_to_atom(NodeStr),
@@ -43,7 +44,7 @@ join(NodeStr, JoinFn, SuccessFmt, SuccessArgs) ->
         end
     catch
         Exception:Reason ->
-            lager:error("Join failed ~p:~p", [Exception, Reason]),
+            ?LOG_ERROR("Join failed ~p:~p", [Exception, Reason]),
             io:format("Join failed, see log for details~n"),
             error
     end.

@@ -1,6 +1,7 @@
 -module(ameo_app).
 
 -behaviour(application).
+-include_lib("kernel/include/logger.hrl").
 
 %% Application callbacks
 -export([start/2, stop/1]).
@@ -38,7 +39,7 @@ setup_webserver() ->
   HttpAcceptors = env(http_acceptors, 100),
   HttpMaxConnections = env(http_max_connections, infinity),
 
-  lager:info("Starting Web Server at ~p", [HttpPort]),
+  ?LOG_INFO("Starting Web Server at ~p", [HttpPort]),
 
   {ok, _} = cowboy:start_clear(ameo_http_listener,
     [{port, HttpPort},
